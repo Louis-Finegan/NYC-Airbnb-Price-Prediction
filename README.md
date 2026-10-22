@@ -6,25 +6,7 @@ The supplied data is the June 2026 snapshot. Running `download.py` retrieves the
 
 ## Setup
 
-Use Python 3.11 or later. From the project directory:
-
-```bash
-python -m venv .venv
-```
-
-Activate the environment on Linux/macOS:
-
-```bash
-source .venv/bin/activate
-```
-
-Or in Windows PowerShell:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-Install the dependencies:
+Use Python 3.11 or later. From the project directory install the dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
