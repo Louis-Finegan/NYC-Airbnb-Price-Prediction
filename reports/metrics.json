@@ -1,0 +1,113 @@
+{
+  "selected_model": "Engineered features + boosting (log, 350)",
+  "selection_metric": "validation MAE_USD (lower is better)",
+  "split_method": "GroupShuffleSplit by host_id; seeds 42 and 43",
+  "split": [
+    {
+      "partition": "train",
+      "listings": 11998,
+      "hosts": 5784
+    },
+    {
+      "partition": "validation",
+      "listings": 3726,
+      "hosts": 1928
+    },
+    {
+      "partition": "test",
+      "listings": 3682,
+      "hosts": 1929
+    }
+  ],
+  "validation_scores": [
+    {
+      "model": "Engineered features + boosting (log, 350)",
+      "MAE_USD": 95.2377601783414,
+      "RMSE_USD": 424.8513012407423,
+      "R2_USD": 0.2732480075559597,
+      "MAE_log": 0.2552383983476511,
+      "RMSE_log": 0.37042259723664117,
+      "R2_log": 0.8066359651371872,
+      "fit_seconds": 4.22
+    },
+    {
+      "model": "Engineered features + boosting (log, 600)",
+      "MAE_USD": 96.04383983257314,
+      "RMSE_USD": 423.67868522121984,
+      "R2_USD": 0.27725423261470017,
+      "MAE_log": 0.2575994591452387,
+      "RMSE_log": 0.3719752896492169,
+      "R2_log": 0.8050115279886141,
+      "fit_seconds": 4.47
+    },
+    {
+      "model": "Engineered features + random forest",
+      "MAE_USD": 99.09673960972209,
+      "RMSE_USD": 433.7215781354058,
+      "R2_USD": 0.24258415849967507,
+      "MAE_log": 0.269623827911166,
+      "RMSE_log": 0.3986550205679406,
+      "R2_log": 0.7760375392826753,
+      "fit_seconds": 114.32
+    },
+    {
+      "model": "Engineered features + boosting (dollars, Poisson)",
+      "MAE_USD": 104.3969044575015,
+      "RMSE_USD": 436.6205787615197,
+      "R2_USD": 0.2324251656474733,
+      "MAE_log": 0.2825399369158404,
+      "RMSE_log": 0.39894539783103,
+      "R2_log": 0.7757111553767331,
+      "fit_seconds": 4.85
+    },
+    {
+      "model": "Original features + random forest",
+      "MAE_USD": 125.74757125505694,
+      "RMSE_USD": 461.55270315539707,
+      "R2_USD": 0.14226146207204926,
+      "MAE_log": 0.37432189938953164,
+      "RMSE_log": 0.5083892296558005,
+      "R2_log": 0.6357719090955405,
+      "fit_seconds": 23.76
+    }
+  ],
+  "test_scores": {
+    "Baseline": {
+      "MAE_USD": 176.41218432966355,
+      "RMSE_USD": 636.9923867141583,
+      "R2_USD": 0.214710671665842,
+      "MAE_log": 0.4125685941451886,
+      "RMSE_log": 0.5644718753223595,
+      "R2_log": 0.6354020937524625
+    },
+    "Selected": {
+      "MAE_USD": 135.3254829600986,
+      "RMSE_USD": 593.7661179604153,
+      "R2_USD": 0.31767381842916886,
+      "MAE_log": 0.26794913234873263,
+      "RMSE_log": 0.3939301454530953,
+      "R2_log": 0.822430657421412
+    }
+  },
+  "development_scores": {
+    "MAE_USD": 60.02321937237182,
+    "RMSE_USD": 311.10082296956733,
+    "R2_USD": 0.6603992592798512,
+    "MAE_log": 0.1566231071540675,
+    "RMSE_log": 0.22312667390523327,
+    "R2_log": 0.9307054057292943
+  },
+  "price_range_USD": [
+    17.7,
+    31537.82
+  ],
+  "target_rows_removed_or_capped_for_outliers": 0,
+  "prediction_units": "USD per night; predict() already inverts any log transform",
+  "versions": {
+    "python": "3.10.5",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.7.2"
+  },
+  "data_sha256": "9f94ea5dc0b5bfcc2b17596ed4c28c9f74d1595acce684092d824c9a55135a97"
+}

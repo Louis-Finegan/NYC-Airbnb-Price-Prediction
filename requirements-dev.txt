@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest>=8,<10
+nbclient>=0.10,<1
+nbformat>=5.10,<6
