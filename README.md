@@ -84,7 +84,7 @@ Performance is reported using:
 
 - **MAE:** average absolute prediction error.
 - **RMSE:** prediction error with greater weight given to large misses.
-- **R²:** performance relative to a constant prediction based on the evaluation set's mean price.
+- **$R^2$:** performance relative to a constant prediction based on the evaluation set's mean price.
 
 Metrics are calculated in both dollar and log-price space. Numerical results, test predictions and diagnostic figures are available in [`reports/`](reports/) and the notebook.
 
