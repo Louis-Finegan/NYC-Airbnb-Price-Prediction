@@ -1,38 +1,22 @@
-# Airbnb price prediction
+# NYC Airbnb Price Prediction
 
-Predict nightly New York City Airbnb listing prices using data from [Inside Airbnb](https://insideairbnb.com/). The project downloads data, prepares listing features, compares regression models and evaluates predictions on hosts excluded from training.
+A Python project using scikit-learn to predict nightly Airbnb listing prices in New York City. The project uses data from [Inside Airbnb](https://insideairbnb.com/) to explore listing characteristics, engineer features and compare random forest and gradient boosting regression models.
 
-The supplied data is the June 2026 snapshot. Running `download.py` retrieves the latest available snapshot, so its results may differ from the included analysis.
+The workflow covers downloading and preparing data, training models, evaluating predictions and visualising the results.
 
 ## Setup
 
-Use Python 3.11 or later. From the project directory install the dependencies:
+Requires Python 3.11 or later. From the project directory, install the dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-Scikit-learn is pinned to the version used for the supplied model. Retrain the model after changing that version. `requirements-tested.txt` records the exact core package versions used for the included results.
+The exact core package versions used for the included analysis are recorded in `requirements-tested.txt`. Retrain the model after changing the scikit-learn version.
 
-## Run the notebook
+## Run the project
 
-```bash
-python -m jupyterlab analyse.ipynb
-```
-
-Run the cells in order. The notebook inspects missing data, demonstrates the engineered features, trains the candidate models, compares validation errors and plots predictions/residuals for the reserved test set. Training can take several minutes.
-
-## Run the scripts
-
-The supplied archive already contains the data. To prepare, train and predict:
-
-```bash
-python clean.py
-python train.py
-python predict.py
-```
-
-To download a fresh snapshot and replace the extracted data first:
+From a fresh copy of the repository, download the data, extract the files, prepare the listings and train the models:
 
 ```bash
 python download.py
@@ -42,86 +26,95 @@ python train.py
 python predict.py
 ```
 
-`read.py` extracts the downloaded CSV files into `data/extracted/`.
+The downloader retrieves the available NYC snapshot from Inside Airbnb. Downloaded files are saved in `data/raw/`, and extracted CSV files are stored in `data/extracted/`.
 
-The downloader uses functions, with no custom scraper class or network activity on import:
+Training compares the candidate models, saves the selected pipeline in `models/` and writes evaluation outputs to `reports/`. The prediction script then uses the saved pipeline to estimate nightly prices.
 
-```python
-from download import download_city_data
+If the data has already been downloaded and extracted, run:
 
-download_city_data(
-    city_name="New York City, New York, United States",
-    city_prefix="New_York",
-)
+```bash
+python clean.py
+python train.py
+python predict.py
 ```
 
-It streams large files, checks HTTP errors, uses timeouts and replaces the destination only after a successful transfer. The old underscore form of the city name also works. Downloads are saved in `data/raw/`.
+Datasets and trained models are generated locally and are excluded from version control. Results may vary with the downloaded snapshot, features and model settings.
 
-## Files
+## Explore the notebook
+
+Open the analysis notebook with:
+
+```bash
+python -m jupyterlab analyse.ipynb
+```
+
+Run the cells in order to explore missing data, examine engineered features, compare models and view prediction and residual plots.
+
+## Project files
 
 | File | Purpose |
 | --- | --- |
-| `download.py` | Download the selected city's compressed CSVs and neighbourhood GeoJSON |
-| `read.py` | Extract `.csv.gz` files without loading them into memory |
-| `clean.py` | Select allowed raw inputs and positive finite prices; preserve missing features |
-| `features.py` | Shared feature functions used by both training and prediction |
-| `train.py` | Compare candidates, evaluate the selected model and save its full pipeline |
-| `predict.py` | Predict nightly dollar prices from raw listing rows |
-| `analyse.ipynb` | Feature engineering, model comparison and held-out diagnostics |
-| `models/airbnb_price_model.pkl` | Fitted feature/encoding/model pipeline |
-| `reports/` | Metrics, split assignments, held-out predictions and figures |
-| `tests/test_workflow.py` | Parsing, download, leakage, split and prediction regression checks |
+| `download.py` | Downloads listing data and supporting files from Inside Airbnb |
+| `read.py` | Extracts the compressed CSV files |
+| `clean.py` | Prepares listing data for modelling |
+| `features.py` | Defines shared feature engineering functions |
+| `train.py` | Trains and compares models, evaluates predictions and saves the selected pipeline |
+| `predict.py` | Generates price predictions using the saved pipeline |
+| `analyse.ipynb` | Explores the data and visualises model performance |
+| `reports/` | Stores evaluation metrics, predictions, split assignments and figures |
+| `tests/test_workflow.py` | Checks data handling, dataset separation and prediction behaviour |
 
-## Features and evaluation
+## Features and models
 
-The engineered features include coordinates and distances to NYC landmarks, property type, bathroom counts recovered from text, capacity ratios, corrected amenity flags/counts, review history, host experience, availability and requested-stay timing. Date ages use the listing's scrape date, rather than today's date.
+The models use listing characteristics such as location, property and room type, guest capacity, amenities, reviews and host information.
 
-Listing/host IDs are used only to identify rows and separate hosts. Monetary quote fields and estimated revenue are excluded. Requested check-in/check-out dates are included because they are known inputs to a stay; quote prices are not.
+Feature engineering adds quantities such as distances to NYC landmarks, capacity ratios, amenity indicators and bathroom counts recovered from text. Date-based features use the listing's scrape date.
 
-Two fixed grouped splits allocate about 60% of hosts to training, 20% to validation and 20% to testing. Listing proportions vary with host size. No host appears in multiple partitions. Models are selected by **validation mean absolute error in USD**, then refitted on training + validation hosts. The reserved test set compares the selected model and original-feature baseline on the same listings.
+Random forests and histogram gradient boosting models are compared using different feature sets and target transformations. Preprocessing and prediction are combined in a pipeline so the same transformations are applied during training and inference.
 
-The fixed candidates are the original 300-tree random forest, the same forest with engineered features, two histogram gradient-boosting models trained on log prices, and boosting on dollar prices with a Poisson loss and positive log-link predictions. The baseline preserves the original feature set and amenity parser; its imputation is now fitted only on training data.
+Listing and host identifiers are excluded from the model inputs. Monetary quote fields and estimated revenue are also excluded.
 
-The model reports dollar MAE/RMSE/R² and log-price MAE/RMSE/R². Expensive listings remain in every metric: no valid positive prices are removed or capped as outliers. The saved model is fitted on development hosts only, so the test results apply to that exact model.
+## Evaluation
 
-The snapshot evaluation does not establish performance on future dates or completely new properties. Review/availability features describe existing listings. Prices without observed targets are excluded, and their missingness may be systematic. Large misses for expensive listings remain visible in the notebook.
+Listings are separated into training, validation and test sets by host. This prevents listings belonging to the same host from appearing in different partitions.
+
+Models are selected using validation mean absolute error in dollars. The selected model is then refitted on the training and validation data and compared with the baseline on the same reserved test listings.
+
+Performance is reported using:
+
+- **MAE:** average absolute prediction error.
+- **RMSE:** prediction error with greater weight given to large misses.
+- **R²:** performance relative to a constant prediction based on the evaluation set's mean price.
+
+Metrics are calculated in both dollar and log-price space. Numerical results, test predictions and diagnostic figures are available in [`reports/`](reports/) and the notebook.
+
+All valid positive prices are retained, including expensive listings. Large errors can occur for unusual or high-priced properties. Evaluation within a single snapshot does not establish accuracy for future prices.
 
 ## Predict your own listings
 
-Use a CSV containing raw listing fields, including a JSON `amenities` array. Additional observed inputs generally help; missing optional fields receive the model's fitted missing-value handling.
+After training, supply a CSV containing listing fields in the format used by the source data:
 
 ```bash
 python predict.py --input my_listings.csv --output predictions.csv
 ```
 
-Or use Python:
+Amenity values should use the JSON array format provided by Inside Airbnb.
 
-```python
-import pandas as pd
-from predict import predict_prices
+Predictions are returned in USD per night. Any log-price transformation is reversed within the saved pipeline.
 
-listings = pd.DataFrame([{
-    "neighbourhood_group_cleansed": "Manhattan",
-    "neighbourhood_cleansed": "Upper East Side",
-    "room_type": "Entire home/apt",
-    "property_type": "Entire rental unit",
-    "accommodates": 2,
-    "bedrooms": 1,
-    "beds": 1,
-    "bathrooms": 1,
-    "amenities": '["Wifi", "Kitchen", "Air conditioning", "Elevator"]',
-}])
+## Run the checks
 
-print(predict_prices(listings)["predicted_price_USD"])
-```
-
-**`model.predict()` already returns dollars per night.** Log target inversion is included in the saved pipeline; do not apply `np.expm1()` a second time. The default `python predict.py` shows five real held-out listings.
-
-## Checks
+Install the development dependencies and run the tests:
 
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m pytest -q
 ```
 
-Data attribution: Inside Airbnb. These are educational estimates of listing prices, rather than booking outcomes or property valuations.
+The checks cover data parsing, download handling, feature exclusions, separation of hosts between datasets and prediction outputs.
+
+## Data source
+
+Data is provided by [Inside Airbnb](https://insideairbnb.com/).
+
+This project estimates advertised listing prices for educational analysis. Predictions do not represent realised booking revenue or property valuations.
